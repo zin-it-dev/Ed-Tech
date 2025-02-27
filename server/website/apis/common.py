@@ -17,7 +17,7 @@ class CommonSerializer(serializers.ModelSerializer):
 class TagSerializer(CommonSerializer):
     class Meta(CommonSerializer.Meta):
         model = Tag
-        fields = CommonSerializer.Meta.fields + ["label"]
+        fields = CommonSerializer.Meta.fields + ["title"]
 
 
 class TaggedObjectSerializer(CommonSerializer):

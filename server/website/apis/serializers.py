@@ -2,17 +2,16 @@ from rest_framework import serializers
 from rest_framework_nested.serializers import NestedHyperlinkedModelSerializer
 
 from .common import CommonSerializer, TimeStampSerializer, TaggedObjectSerializer
-from .models import Category, Course, Lesson, Chapter
+from .models import Category, Course, Lesson
 
 
 class CategorySerializer(CommonSerializer, TimeStampSerializer):
     class Meta(CommonSerializer.Meta, TimeStampSerializer.Meta):
         model = Category
-        fields = CommonSerializer.Meta.fields + ["label"] + TimeStampSerializer.Meta.fields
+        fields = CommonSerializer.Meta.fields + ["title"] + TimeStampSerializer.Meta.fields
 
 
 class CourseSerializer(TaggedObjectSerializer, TimeStampSerializer):
-
     category = serializers.StringRelatedField()
 
     class Meta(TaggedObjectSerializer.Meta, TimeStampSerializer.Meta):
@@ -24,7 +23,7 @@ class CourseSerializer(TaggedObjectSerializer, TimeStampSerializer):
         )
 
 
-class ChapterSerializer(
+class LessonSerializer(
     NestedHyperlinkedModelSerializer, TaggedObjectSerializer, TimeStampSerializer
 ):
     parent_lookup_kwargs = {
@@ -34,26 +33,9 @@ class ChapterSerializer(
     course = serializers.StringRelatedField()
 
     class Meta(TaggedObjectSerializer.Meta, TimeStampSerializer.Meta):
-        model = Chapter
-        fields = (
-            TaggedObjectSerializer.Meta.fields
-            + ["title", "description", "course"]
-            + TimeStampSerializer.Meta.fields
-        )
-
-
-class LessonSerializer(
-    NestedHyperlinkedModelSerializer, TaggedObjectSerializer, TimeStampSerializer
-):
-    parent_lookup_kwargs = {
-        "lesson_slug": "lesson__slug",
-        "course_slug": "course__slug__slug",
-    }
-
-    class Meta(TaggedObjectSerializer.Meta, TimeStampSerializer.Meta):
         model = Lesson
         fields = (
             TaggedObjectSerializer.Meta.fields
-            + ["title", "content"]
+            + ["title", "content", "course"]
             + TimeStampSerializer.Meta.fields
         )

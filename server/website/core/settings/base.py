@@ -14,6 +14,7 @@ import os
 
 from pathlib import Path
 from dotenv import load_dotenv
+from django.conf.global_settings import LANGUAGES as DJANGO_LANGUAGES
 
 load_dotenv()
 
@@ -33,7 +34,9 @@ DEBUG = True
 # Application definition
 
 INSTALLED_APPS = [
-    "django.contrib.admin",
+    "jazzmin",
+    "core.apps.CustomizeAdminConfig",
+    "django.contrib.admindocs",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
@@ -119,6 +122,7 @@ SPECTACULAR_SETTINGS = {
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.locale.LocaleMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -171,6 +175,8 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
 LANGUAGE_CODE = "en-us"
+
+LANGUAGES = DJANGO_LANGUAGES
 
 TIME_ZONE = "Asia/Ho_Chi_Minh"
 
@@ -346,3 +352,51 @@ CLOUDINARY_STORAGE = {
 
 
 DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+
+
+# JAZZMIN
+
+JAZZMIN_SETTINGS = {
+    "site_title": "Ed-Tech Admin 🔖",
+    "site_header": "Ed-Tech",
+    "site_brand": "Ed-Tech",
+    "site_logo_classes": "img-circle",
+    "welcome_sign": "Welcome to Ed-Tech Admin site 🔖",
+    "copyright": "Acme Ed-Tech Ltd",
+    "search_model": ["apis.User", "auth.Group"],
+    "user_avatar": "avatar",
+    "topmenu_links": [
+        {
+            "name": "Support",
+            "url": "https://github.com/zin-it-dev",
+            "new_window": True,
+        }
+    ],
+    "usermenu_links": [
+        {
+            "name": "Support",
+            "url": "https://github.com/zin-it-dev",
+            "new_window": True,
+        },
+        {"model": "auth.user"},
+    ],
+    "show_sidebar": True,
+    "navigation_expanded": True,
+    "icons": {
+        "apis.user": "fas fa-user",
+        "auth.Group": "fas fa-users",
+        "oauth2_provider.accesstoken": "fas fa-users-cog",
+        "auth.Permission": "fas fa-lock",
+        "custom_app.statistics": "fas fa-chart-bar",
+        "apis.User": "fas fa-user",
+        "apis.Category": "fas fa-list-alt",
+        "apis.Tag": "fa fa-tags",
+    },
+    "default_icon_parents": "fas fa-chevron-circle-right",
+    "default_icon_children": "fas fa-circle",
+    "related_modal_active": True,
+    "use_google_fonts_cdn": True,
+    "show_ui_builder": True,
+    "changeform_format": "carousel",
+    "language_chooser": True,
+}

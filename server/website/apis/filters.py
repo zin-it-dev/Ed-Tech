@@ -1,6 +1,6 @@
 from django_filters import rest_framework as filters
 
-from .models import Course, Chapter, Lesson
+from .models import Course, Lesson
 
 
 class BaseFilter(filters.FilterSet):
@@ -25,17 +25,9 @@ class CourseFilter(BaseFilter):
         fields = BaseFilter.Meta.fields + ["category"]
 
 
-class ChapterFilter(BaseFilter):
+class LessonFilter(BaseFilter):
     course = filters.CharFilter(field_name="course__slug", lookup_expr="iexact")
 
     class Meta(BaseFilter.Meta):
-        model = Chapter
-        fields = BaseFilter.Meta.fields + ["course"]
-
-
-class LessonFilter(BaseFilter):
-    chapter = filters.CharFilter(field_name="chapter__slug", lookup_expr="iexact")
-
-    class Meta(BaseFilter.Meta):
         model = Lesson
-        fields = BaseFilter.Meta.fields + ["chapter"]
+        fields = BaseFilter.Meta.fields + ["course"]

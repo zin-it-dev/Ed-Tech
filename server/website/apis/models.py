@@ -2,10 +2,42 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django_ckeditor_5.fields import CKEditor5Field
 from cloudinary_storage.storage import MediaCloudinaryStorage
+from django.contrib import admin
+from django.utils.html import mark_safe
 
 
 class User(AbstractUser):
-    pass
+    """
+    Represents a user available in system.
+    """
+
+    email = models.EmailField(
+        max_length=100,
+        unique=True,
+        help_text="Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.",
+    )
+    avatar = models.ImageField(
+        upload_to="avatars/%Y/%m/%d/",
+        default=None,
+        null=True,
+        blank=True,
+        help_text="Upload avatar of the user",
+        storage=MediaCloudinaryStorage(),
+    )
+    reset_code = models.CharField(max_length=7, null=True, blank=True, unique=True)
+
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ["username"]
+
+    class Meta:
+        ordering = ["-date_joined"]
+
+    @admin.display(description="Preview")
+    def avatar_preview(self):
+        if self.avatar:
+            return mark_safe(
+                f'<img src="{self.avatar.url}" alt="{self.username}" width="75" height="75" class="img-thumbnail rounded-circle shadow" />'
+            )
 
 
 class Common(models.Model):
@@ -30,21 +62,29 @@ class Common(models.Model):
 
 
 class Category(Common):
-    label = models.CharField(unique=True, max_length=80)
+    """
+    Represents a category available in system.
+    """
+
+    title = models.CharField(unique=True, max_length=80)
 
     class Meta(Common.Meta):
-        ordering = Common.Meta.ordering + ["label"]
+        ordering = Common.Meta.ordering + ["title"]
         verbose_name_plural = "Categories"
 
     def __str__(self):
-        return self.label
+        return self.title
 
 
 class Tag(Common):
-    label = models.CharField(unique=True, max_length=80)
+    """
+    Represents a tag available in system.
+    """
+
+    title = models.CharField(unique=True, max_length=80)
 
     def __str__(self):
-        return self.label
+        return self.title
 
 
 class Base(Common):
@@ -59,7 +99,11 @@ class Base(Common):
 
 
 class Course(Base):
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    """
+    Represents a course available in system.
+    """
+
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="courses")
 
     title = models.CharField(max_length=80)
     description = models.TextField()
@@ -75,15 +119,26 @@ class Course(Base):
     class Meta(Base.Meta):
         unique_together = ("category", "title")
 
+    @admin.display(description="Banner")
+    def banner(self):
+        if self.image:
+            return mark_safe(
+                f'<img src="{self.image.url}" alt="{self.title}" title="{self.title}" width="80" height="80" class="img-thumbnail rounded shadow" />'
+            )
+
     def __str__(self):
         return self.title
 
 
-class Chapter(Base):
+class Lesson(Base):
+    """
+    Represents a lesson available in system.
+    """
+
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="lessons")
 
     title = models.CharField(max_length=125)
-    description = models.TextField()
+    content = CKEditor5Field("Text", config_name="extends")
 
     class Meta(Base.Meta):
         ordering = Base.Meta.ordering + ["id"]
@@ -93,19 +148,13 @@ class Chapter(Base):
         return self.title
 
 
-class Lesson(Base):
-    chapter = models.ForeignKey(Chapter, on_delete=models.CASCADE, related_name="lessons")
+class Resource(models.Model):
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
 
-    title = models.CharField(max_length=125)
-    video_url = models.URLField(
+    url = models.URLField(
         blank=True,
         null=True,
     )
-    content = CKEditor5Field("Text", config_name="extends")
-
-    class Meta(Base.Meta):
-        ordering = Base.Meta.ordering + ["id"]
-        unique_together = ("chapter", "title")
 
     def __str__(self):
-        return self.title
+        return self.url
